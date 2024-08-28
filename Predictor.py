@@ -5,10 +5,6 @@ import os
 
 dirname = os.path.dirname(__file__)
 
-efficientNetV2B3 = load_model(os.path.join(dirname, "models/face_classifier_EfficientNetV2B3.h5"))
-efficientNetV2L = load_model(os.path.join(dirname, "models/face_classifier_EfficientNetV2L.h5"))
-mobilev3Large = load_model(os.path.join(dirname, "models/face_classifier_mobilev3_large.h5"))
-resnet50 = load_model(os.path.join(dirname, "models/face_classifier_resnet50.h5"))
 vgg19 = load_model(os.path.join(dirname, "models/face_classifier_vgg19.h5"))
 
 num_classes = 2
@@ -36,30 +32,13 @@ def load_user_image():
 
 img = load_user_image()
 
-predictions = []
-predictions.append(efficientNetV2B3.predict(img, batch_size=10))
-predictions.append(efficientNetV2L.predict(img, batch_size=10))
-predictions.append(mobilev3Large.predict(img, batch_size=10))
-predictions.append(resnet50.predict(img, batch_size=10))
-predictions.append(vgg19.predict(img, batch_size=10))
 
-realPredictions = 0
-fakePredictions = 0
+prediction=vgg19.predict(img, batch_size=10)
+
 maxAccuracyFake = 0
 maxAccuracyReal = 0
 
-index = 0
-for prediction in predictions:
-    if(prediction[0].argmax(axis=-1) == 1):
-        fakePredictions +=1
-        print ("Model " + str(index) + ": " + str(prediction[0][1]) + "\% chance of a deep fake")
-        maxAccuracyFake = maxAccuracyFake if maxAccuracyFake > prediction[0][1] else prediction[0][1]
-        
-    else: 
-        realPredictions +=1
-        print ("Model " + str(index) + ": " + str(prediction[0][1]) + "\% chance of being real!")
-        maxAccuracyReal = maxAccuracyReal if maxAccuracyReal> prediction[0][1] else prediction[0][1]
+print(prediction)
 
-
-print((str(round(100 * maxAccuracyFake, 2)) + " percent chance of being a deepfake") if fakePredictions > realPredictions else (str(str(round(100 * maxAccuracyReal, 2))) + " percent chance of being real!"))
+print((str(round(100 * prediction[0][0], 2)) + " percent chance of being a deepfake") if prediction[0][0] > prediction[0][1] else (str(str(round(100 * prediction[0][1], 2))) + " percent chance of being real!"))
 
